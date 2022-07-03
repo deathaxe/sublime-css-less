@@ -1,0 +1,147 @@
+%YAML 1.2
+---
+name: LESS
+scope: source.less
+version: 2
+
+extends: Packages/CSS/CSS.sublime-syntax
+
+file_extensions:
+  - less
+
+contexts:
+
+###[ CSS ]#####################################################################
+
+  main:
+    - meta_prepend: true
+    - include: less-variable-declarations
+
+  selector-content:
+    - meta_prepend: true
+    - include: less-selector-parameters
+
+  rule-list-body:
+    - meta_prepend: true
+    - include: comments
+    - include: less-extends
+    - include: less-inerhit-operator
+    - include: less-property-or-selector
+    - include: property-lists
+    - include: rule-terminators
+    - include: illegal-groups
+
+  property-value-content:
+    - meta_prepend: true
+    - include: less-operators
+    - include: less-variables
+
+  function-arguments-common:
+    - meta_prepend: true
+    - include: less-operators
+
+###[ LESS IMPORT ]#############################################################
+
+  at-import:
+    - match: (@)(?i:import){{break}}
+      captures:
+        0: keyword.control.directive.less
+        1: punctuation.definition.keyword.less
+      push:
+        - at-import-content
+        - at-import-options
+
+  at-import-options:
+    - match: \(
+      scope: punctuation.section.group.begin.less
+      set: at-import-option-content
+    - include: else-pop
+
+  at-import-option-content:
+    - include: function-arguments-common
+    - match: ','
+      scope: punctuation.separator.sequence.less
+    - match: (?i:reference|inline|less|css|once|multiple|optional){{break}}
+      scope: constant.language.import.less
+
+###[ LESS SELECTORS ]##########################################################
+
+  less-selector-parameters:
+    - match: \(
+      scope: punctuation.section.group.begin.less
+      set: less-selector-parameters-content
+
+  less-selector-parameters-content:
+    - meta_scope: meta.group.less
+    - include: group-end
+    - include: comments
+    - include: rule-terminators
+    - include: property-value-content
+
+###[ LESS PROPERTIES ]#########################################################
+
+  less-property-or-selector:
+    - match: (?=[:.*#[:alpha:]\[]|{{combinators}})
+      branch_point: less-property-or-selector
+      branch:
+        - less-property-identifier
+        - selector-content
+
+  less-property-identifier:
+    - match: ''
+      set:
+        - less-property-value
+        - property-identifier-content
+
+  less-property-value:
+    # todo: font-family
+    - match: ':'
+      scope: punctuation.separator.key-value.css
+      set: less-property-value-content
+    - match: (?=\S)
+      fail: less-property-or-selector
+
+  less-property-value-content:
+    - match: (?={)
+      fail: less-property-or-selector
+    - include: property-value-content
+
+###[ LESS EXTEND ]#############################################################
+
+  less-extends:
+    - match: (:)(extend)(\()
+      captures:
+        1: punctuation.separator.less
+        2: support.function.less
+        3: punctuation.section.group.begin.less
+      push: less-extend-arguments
+
+  less-extend-arguments:
+    - include: group-end
+    - include: selector-content
+
+###[ LESS OPERATORS ]##########################################################
+
+  less-operators:
+    - match: '[-+*/]'
+      scope: keyword.operator.arithmetic.less
+
+  less-inerhit-operator:
+    - match: '&'
+      scope: keyword.operator.inerhit.less
+
+###[ LESS VARIABLES ]##########################################################
+
+  less-variable-declarations:
+    - match: (@)({{ident}})\s*(:)
+      captures:
+        1: punctuation.definition.variable.less
+        2: variable.other.less
+        3: punctuation.separator.key-value.css
+      push: property-value-content
+
+  less-variables:
+    - match: (@)({{ident}})
+      captures:
+        1: punctuation.definition.variable.less
+        2: variable.other.less

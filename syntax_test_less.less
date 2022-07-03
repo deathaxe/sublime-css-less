@@ -1,0 +1,134 @@
+/* SYNTAX TEST "Packages/LESS/LESS.sublime-syntax" */
+
+        p,
+    div {
+      color: red;
+      font-family: Lucida Console;
+    }
+    p + p,
+    p + div,
+    div + p,
+    div + div {
+      color: brown;
+      background-color: aqua;
+      font-family: "Comic Sans MS";
+    }
+
+
+@import "myfile.less";
+@import (less, optional) "simple.css";
+
+.myclass2
+{
+color: brown;
+}
+
+@color-base: #2d5e8b;
+
+color: red;
+
+.class1 {
+/* <- meta.selector.css entity.other.attribute-name.class.css punctuation.definition.entity.css */
+/*^^^^^ meta.selector.css entity.other.attribute-name.class.css */
+/*     ^ - meta.selector - meta.property-list */
+/*      ^^ meta.property-list.css meta.block.css  */
+    background-color: @color-base;
+
+    #id {
+        * > .class1 {
+            font: 100
+
+        }
+
+        : value ;
+    }
+
+    .class2 {
+
+        background-color: #fff;
+
+        color: @color-base + 10 / 5;
+    }
+
+    table {
+        background: beige;
+
+
+        .class();    /* mixin */
+
+        .round-borders;     /* mixin */
+    }
+
+    td:nth-child {
+
+        font-family: Arial, Helvetica, sans-serif;
+
+    }
+}
+
+    h2 {
+      &:extend(.style);
+      font-style: italic;
+    }
+    .style {
+      background: lightgreen;
+    }
+
+
+/* parametric mixins */
+
+.border(@width; @style; @color) {
+    border: @width @style @color;
+}
+.myheader {
+    .border(5px; /**/ dashed; red; var(--variable));
+}
+
+/* deteched ruleset */
+
+@detached-ruleset: {
+    .mixin() {
+        font-family: "Algerian";
+        background-color: #AA86EE;
+    }
+};
+.cont {
+    @detached-ruleset();
+    .mixin();
+}
+
+
+    .cont(@count) when (@count > 0) {
+      .cont((@count - 1));
+      width: (25px * @count);
+    }
+    div {
+      .cont(7);
+    }
+
+
+
+p,
+div {
+  color: red;
+  font-family: Lucida Console;
+}
+
+p + p,
+p + div,
+div + p,
+div + div {
+  color: brown;
+  background-color: aqua;
+  font-family: "Comic Sans MS";
+}
+
+.header {
+  .menu {
+    border-radius: 5px;
+    border: 1px solid red;
+    & {
+      padding-left: 200px;
+    }
+  }
+}
